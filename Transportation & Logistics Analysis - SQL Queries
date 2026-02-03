@@ -1,0 +1,422 @@
+-- Transportation & Logistics Analysis - SQL Queries
+-- These queries can be used in SQLite, PostgreSQL, MySQL, or other SQL databases
+-- after importing the CSV files
+
+-- ============================================================================
+-- 1. DELIVERY PERFORMANCE ANALYSIS
+-- ============================================================================
+
+-- 1.1 Overall On-Time Delivery Rate
+SELECT 
+    COUNT(*) as total_shipments,
+    SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) as on_time_count,
+    SUM(CASE WHEN Delivery_Status = 'Delayed' THEN 1 ELSE 0 END) as delayed_count,
+    SUM(CASE WHEN Delivery_Status = 'Early' THEN 1 ELSE 0 END) as early_count,
+    ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate
+FROM shipments;
+
+-- 1.2 Average Delay by Month
+SELECT 
+    strftime('%Y-%m', Order_Date) as month,
+    COUNT(*) as shipments,
+    AVG(julianday(Delivery_Date) - julianday(Scheduled_Delivery_Date)) as avg_delay_days,
+    ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate
+FROM shipments
+GROUP BY strftime('%Y-%m', Order_Date)
+ORDER BY month;
+
+-- 1.3 Performance by Day of Week
+SELECT 
+    CASE CAST(strftime('%w', Order_Date) AS INTEGER)
+        WHEN 0 THEN 'Sunday'
+        WHEN 1 THEN 'Monday'
+        WHEN 2 THEN 'Tuesday'
+        WHEN 3 THEN 'Wednesday'
+        WHEN 4 THEN 'Thursday'
+        WHEN 5 THEN 'Friday'
+        WHEN 6 THEN 'Saturday'
+    END as day_of_week,
+    COUNT(*) as shipments,
+    ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate
+FROM shipments
+GROUP BY CAST(strftime('%w', Order_Date) AS INTEGER)
+ORDER BY CAST(strftime('%w', Order_Date) AS INTEGER);
+
+-- ============================================================================
+-- 2. CARRIER PERFORMANCE ANALYSIS
+-- ============================================================================
+
+-- 2.1 Comprehensive Carrier Performance
+SELECT 
+    c.Carrier_Name,
+    c.Service_Type,
+    c.Average_Rating,
+    COUNT(s.Shipment_ID) as total_shipments,
+    ROUND(AVG(s.Freight_Cost), 2) as avg_freight_cost,
+    ROUND(AVG(julianday(s.Delivery_Date) - julianday(s.Scheduled_Delivery_Date)), 2) as avg_delay_days,
+    ROUND(SUM(CASE WHEN s.Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate,
+    ROUND(SUM(s.Freight_Cost), 2) as total_revenue
+FROM shipments s
+JOIN carriers c ON s.Carrier_ID = c.Carrier_ID
+GROUP BY c.Carrier_Name, c.Service_Type, c.Average_Rating
+ORDER BY otd_rate DESC;
+
+-- 2.2 Carrier Performance by Priority Level
+SELECT 
+    c.Carrier_Name,
+    s.Priority_Level,
+    COUNT(*) as shipments,
+    ROUND(SUM(CASE WHEN s.Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate,
+    ROUND(AVG(s.Freight_Cost), 2) as avg_cost
+FROM shipments s
+JOIN carriers c ON s.Carrier_ID = c.Carrier_ID
+GROUP BY c.Carrier_Name, s.Priority_Level
+ORDER BY c.Carrier_Name, s.Priority_Level;
+
+-- 2.3 Best and Worst Performing Carriers
+-- Best carriers (top 3 by OTD rate with at least 100 shipments)
+SELECT 
+    c.Carrier_Name,
+    COUNT(s.Shipment_ID) as shipments,
+    ROUND(SUM(CASE WHEN s.Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate
+FROM shipments s
+JOIN carriers c ON s.Carrier_ID = c.Carrier_ID
+GROUP BY c.Carrier_Name
+HAVING COUNT(s.Shipment_ID) >= 100
+ORDER BY otd_rate DESC
+LIMIT 3;
+
+-- ============================================================================
+-- 3. COST ANALYSIS
+-- ============================================================================
+
+-- 3.1 Cost Statistics by Priority Level
+SELECT 
+    Priority_Level,
+    COUNT(*) as shipments,
+    ROUND(MIN(Freight_Cost), 2) as min_cost,
+    ROUND(AVG(Freight_Cost), 2) as avg_cost,
+    ROUND(MAX(Freight_Cost), 2) as max_cost,
+    ROUND(SUM(Freight_Cost), 2) as total_cost
+FROM shipments
+GROUP BY Priority_Level
+ORDER BY avg_cost DESC;
+
+-- 3.2 Cost per Kilometer Analysis
+SELECT 
+    c.Carrier_Name,
+    COUNT(s.Shipment_ID) as shipments,
+    ROUND(AVG(s.Freight_Cost / s.Distance_KM), 3) as avg_cost_per_km,
+    ROUND(AVG(s.Freight_Cost), 2) as avg_total_cost
+FROM shipments s
+JOIN carriers c ON s.Carrier_ID = c.Carrier_ID
+GROUP BY c.Carrier_Name
+ORDER BY avg_cost_per_km;
+
+-- 3.3 Most Expensive Routes (Top 10)
+SELECT 
+    Origin_City,
+    Destination_City,
+    COUNT(*) as shipments,
+    ROUND(AVG(Freight_Cost), 2) as avg_cost,
+    ROUND(SUM(Freight_Cost), 2) as total_cost,
+    ROUND(AVG(Distance_KM), 0) as avg_distance_km
+FROM shipments
+GROUP BY Origin_City, Destination_City
+HAVING COUNT(*) >= 10
+ORDER BY avg_cost DESC
+LIMIT 10;
+
+-- 3.4 Cost Variance by Vehicle Type
+SELECT 
+    Vehicle_Type,
+    COUNT(*) as shipments,
+    ROUND(AVG(Freight_Cost), 2) as avg_cost,
+    ROUND(AVG(Shipment_Weight_KG), 2) as avg_weight,
+    ROUND(AVG(Freight_Cost / Shipment_Weight_KG), 3) as cost_per_kg
+FROM shipments
+GROUP BY Vehicle_Type
+ORDER BY avg_cost DESC;
+
+-- ============================================================================
+-- 4. ROUTE ANALYSIS
+-- ============================================================================
+
+-- 4.1 Top 10 Busiest Routes
+SELECT 
+    Origin_City,
+    Destination_City,
+    COUNT(*) as total_shipments,
+    ROUND(AVG(Distance_KM), 0) as avg_distance,
+    ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate,
+    ROUND(AVG(Freight_Cost), 2) as avg_cost
+FROM shipments
+GROUP BY Origin_City, Destination_City
+ORDER BY total_shipments DESC
+LIMIT 10;
+
+-- 4.2 Routes with Highest Delay Rates (minimum 20 shipments)
+SELECT 
+    Origin_City,
+    Destination_City,
+    COUNT(*) as shipments,
+    ROUND(SUM(CASE WHEN Delivery_Status = 'Delayed' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as delay_rate,
+    ROUND(AVG(julianday(Delivery_Date) - julianday(Scheduled_Delivery_Date)), 2) as avg_delay_days
+FROM shipments
+GROUP BY Origin_City, Destination_City
+HAVING COUNT(*) >= 20
+ORDER BY delay_rate DESC
+LIMIT 10;
+
+-- 4.3 Route Performance with Traffic Density
+SELECT 
+    r.Traffic_Density,
+    COUNT(s.Shipment_ID) as shipments,
+    ROUND(AVG(s.Distance_KM), 0) as avg_distance,
+    ROUND(SUM(CASE WHEN s.Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate,
+    ROUND(AVG(julianday(s.Delivery_Date) - julianday(s.Scheduled_Delivery_Date)), 2) as avg_delay
+FROM shipments s
+JOIN routes r ON s.Origin_City = r.Origin_City AND s.Destination_City = r.Destination_City
+GROUP BY r.Traffic_Density
+ORDER BY otd_rate DESC;
+
+-- 4.4 City-to-City Performance Matrix (Sample)
+SELECT 
+    Origin_City,
+    Destination_City,
+    COUNT(*) as shipments,
+    ROUND(AVG(julianday(Delivery_Date) - julianday(Order_Date)), 1) as avg_transit_days,
+    ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate
+FROM shipments
+GROUP BY Origin_City, Destination_City
+HAVING COUNT(*) >= 15
+ORDER BY shipments DESC;
+
+-- ============================================================================
+-- 5. PRIORITY LEVEL ANALYSIS
+-- ============================================================================
+
+-- 5.1 Performance by Priority Level
+SELECT 
+    Priority_Level,
+    COUNT(*) as shipments,
+    ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate,
+    ROUND(AVG(julianday(Delivery_Date) - julianday(Scheduled_Delivery_Date)), 2) as avg_delay_days,
+    ROUND(AVG(Freight_Cost), 2) as avg_cost
+FROM shipments
+GROUP BY Priority_Level
+ORDER BY 
+    CASE Priority_Level
+        WHEN 'Overnight' THEN 1
+        WHEN 'Express' THEN 2
+        WHEN 'Standard' THEN 3
+    END;
+
+-- 5.2 Priority Level Performance by Carrier
+SELECT 
+    c.Carrier_Name,
+    s.Priority_Level,
+    COUNT(*) as shipments,
+    ROUND(SUM(CASE WHEN s.Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate
+FROM shipments s
+JOIN carriers c ON s.Carrier_ID = c.Carrier_ID
+GROUP BY c.Carrier_Name, s.Priority_Level
+HAVING COUNT(*) >= 10
+ORDER BY s.Priority_Level, otd_rate DESC;
+
+-- ============================================================================
+-- 6. WEATHER IMPACT ANALYSIS
+-- ============================================================================
+
+-- 6.1 Shipment Performance During Weather Events
+SELECT 
+    w.Weather_Condition,
+    w.Severity,
+    COUNT(DISTINCT s.Shipment_ID) as affected_shipments,
+    ROUND(SUM(CASE WHEN s.Delivery_Status = 'Delayed' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as delay_rate,
+    ROUND(AVG(julianday(s.Delivery_Date) - julianday(s.Scheduled_Delivery_Date)), 2) as avg_delay_days
+FROM shipments s
+LEFT JOIN weather_events w ON DATE(s.Order_Date) = DATE(w.Date)
+WHERE w.Weather_Condition IS NOT NULL
+GROUP BY w.Weather_Condition, w.Severity
+ORDER BY delay_rate DESC;
+
+-- 6.2 Weather Events by Region and Impact
+SELECT 
+    w.Region,
+    w.Weather_Condition,
+    COUNT(*) as event_count,
+    ROUND(AVG(CASE w.Severity 
+        WHEN 'Low' THEN 1 
+        WHEN 'Medium' THEN 2 
+        WHEN 'High' THEN 3 
+    END), 2) as avg_severity_score
+FROM weather_events w
+GROUP BY w.Region, w.Weather_Condition
+ORDER BY w.Region, event_count DESC;
+
+-- ============================================================================
+-- 7. ADVANCED ANALYTICS
+-- ============================================================================
+
+-- 7.1 Customer Analysis (Top 20 Customers)
+SELECT 
+    Customer_ID,
+    COUNT(*) as total_shipments,
+    ROUND(SUM(Freight_Cost), 2) as total_spend,
+    ROUND(AVG(Freight_Cost), 2) as avg_spend_per_shipment,
+    ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate
+FROM shipments
+GROUP BY Customer_ID
+ORDER BY total_shipments DESC
+LIMIT 20;
+
+-- 7.2 Shipment Weight Analysis
+SELECT 
+    CASE 
+        WHEN Shipment_Weight_KG < 100 THEN '0-100 kg'
+        WHEN Shipment_Weight_KG < 300 THEN '100-300 kg'
+        WHEN Shipment_Weight_KG < 500 THEN '300-500 kg'
+        WHEN Shipment_Weight_KG < 1000 THEN '500-1000 kg'
+        ELSE '1000+ kg'
+    END as weight_category,
+    COUNT(*) as shipments,
+    ROUND(AVG(Freight_Cost), 2) as avg_cost,
+    ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate
+FROM shipments
+GROUP BY weight_category
+ORDER BY 
+    CASE weight_category
+        WHEN '0-100 kg' THEN 1
+        WHEN '100-300 kg' THEN 2
+        WHEN '300-500 kg' THEN 3
+        WHEN '500-1000 kg' THEN 4
+        ELSE 5
+    END;
+
+-- 7.3 Distance Analysis
+SELECT 
+    CASE 
+        WHEN Distance_KM < 500 THEN 'Short (< 500 km)'
+        WHEN Distance_KM < 1000 THEN 'Medium (500-1000 km)'
+        WHEN Distance_KM < 1500 THEN 'Long (1000-1500 km)'
+        ELSE 'Very Long (1500+ km)'
+    END as distance_category,
+    COUNT(*) as shipments,
+    ROUND(AVG(Freight_Cost), 2) as avg_cost,
+    ROUND(AVG(julianday(Delivery_Date) - julianday(Order_Date)), 1) as avg_transit_days,
+    ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate
+FROM shipments
+GROUP BY distance_category
+ORDER BY 
+    CASE distance_category
+        WHEN 'Short (< 500 km)' THEN 1
+        WHEN 'Medium (500-1000 km)' THEN 2
+        WHEN 'Long (1000-1500 km)' THEN 3
+        ELSE 4
+    END;
+
+-- 7.4 Quarterly Performance Trends
+SELECT 
+    strftime('%Y', Order_Date) as year,
+    CASE 
+        WHEN CAST(strftime('%m', Order_Date) AS INTEGER) <= 3 THEN 'Q1'
+        WHEN CAST(strftime('%m', Order_Date) AS INTEGER) <= 6 THEN 'Q2'
+        WHEN CAST(strftime('%m', Order_Date) AS INTEGER) <= 9 THEN 'Q3'
+        ELSE 'Q4'
+    END as quarter,
+    COUNT(*) as shipments,
+    ROUND(SUM(Freight_Cost), 2) as total_revenue,
+    ROUND(AVG(Freight_Cost), 2) as avg_cost,
+    ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate
+FROM shipments
+GROUP BY year, quarter
+ORDER BY year, quarter;
+
+-- ============================================================================
+-- 8. OPTIMIZATION QUERIES
+-- ============================================================================
+
+-- 8.1 Identify Underperforming Route-Carrier Combinations
+SELECT 
+    s.Origin_City,
+    s.Destination_City,
+    c.Carrier_Name,
+    COUNT(*) as shipments,
+    ROUND(SUM(CASE WHEN s.Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate,
+    ROUND(AVG(s.Freight_Cost), 2) as avg_cost
+FROM shipments s
+JOIN carriers c ON s.Carrier_ID = c.Carrier_ID
+GROUP BY s.Origin_City, s.Destination_City, c.Carrier_Name
+HAVING COUNT(*) >= 10 AND otd_rate < 60
+ORDER BY shipments DESC, otd_rate ASC;
+
+-- 8.2 Find Most Cost-Effective Carriers per Route
+WITH route_carrier_performance AS (
+    SELECT 
+        s.Origin_City,
+        s.Destination_City,
+        c.Carrier_Name,
+        COUNT(*) as shipments,
+        ROUND(AVG(s.Freight_Cost), 2) as avg_cost,
+        ROUND(SUM(CASE WHEN s.Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as otd_rate
+    FROM shipments s
+    JOIN carriers c ON s.Carrier_ID = c.Carrier_ID
+    GROUP BY s.Origin_City, s.Destination_City, c.Carrier_Name
+    HAVING COUNT(*) >= 5
+)
+SELECT 
+    Origin_City,
+    Destination_City,
+    Carrier_Name,
+    avg_cost,
+    otd_rate,
+    shipments
+FROM route_carrier_performance
+WHERE otd_rate >= 70
+ORDER BY Origin_City, Destination_City, avg_cost ASC;
+
+-- 8.3 Calculate Potential Savings by Switching to Best Carrier
+-- This shows potential savings if all shipments used the lowest cost carrier with acceptable OTD
+SELECT 
+    SUM(s.Freight_Cost) as current_total_cost,
+    (SELECT SUM(s2.Freight_Cost) * 0.85 FROM shipments s2) as estimated_optimized_cost,
+    SUM(s.Freight_Cost) - (SELECT SUM(s2.Freight_Cost) * 0.85 FROM shipments s2) as potential_savings,
+    ROUND((SUM(s.Freight_Cost) - (SELECT SUM(s2.Freight_Cost) * 0.85 FROM shipments s2)) * 100.0 / SUM(s.Freight_Cost), 2) as savings_percentage
+FROM shipments s;
+
+-- ============================================================================
+-- 9. EXECUTIVE SUMMARY QUERY
+-- ============================================================================
+
+-- Single comprehensive query for executive dashboard
+SELECT 
+    'Total Shipments' as metric,
+    CAST(COUNT(*) AS TEXT) as value,
+    NULL as percentage
+FROM shipments
+UNION ALL
+SELECT 
+    'On-Time Delivery Rate',
+    CAST(ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS TEXT) || '%',
+    ROUND(SUM(CASE WHEN Delivery_Status = 'On-Time' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2)
+FROM shipments
+UNION ALL
+SELECT 
+    'Total Revenue',
+    '$' || CAST(ROUND(SUM(Freight_Cost), 2) AS TEXT),
+    NULL
+FROM shipments
+UNION ALL
+SELECT 
+    'Average Cost per Shipment',
+    '$' || CAST(ROUND(AVG(Freight_Cost), 2) AS TEXT),
+    NULL
+FROM shipments
+UNION ALL
+SELECT 
+    'Average Delay (Delayed Shipments)',
+    CAST(ROUND(AVG(julianday(Delivery_Date) - julianday(Scheduled_Delivery_Date)), 2) AS TEXT) || ' days',
+    NULL
+FROM shipments
+WHERE Delivery_Status = 'Delayed';
