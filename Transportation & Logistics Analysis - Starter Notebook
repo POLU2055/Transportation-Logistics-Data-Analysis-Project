@@ -1,0 +1,451 @@
+# Transportation & Logistics Analysis - Starter Notebook
+
+## Setup and Data Loading
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime, timedelta
+import warnings
+warnings.filterwarnings('ignore')
+
+# Set style for better visualizations
+sns.set_style("whitegrid")
+plt.rcParams['figure.figsize'] = (12, 6)
+
+# Load datasets
+shipments = pd.read_csv('shipments.csv')
+carriers = pd.read_csv('carriers.csv')
+routes = pd.read_csv('routes.csv')
+weather = pd.read_csv('weather_events.csv')
+
+# Convert date columns to datetime
+shipments['Order_Date'] = pd.to_datetime(shipments['Order_Date'])
+shipments['Delivery_Date'] = pd.to_datetime(shipments['Delivery_Date'])
+shipments['Scheduled_Delivery_Date'] = pd.to_datetime(shipments['Scheduled_Delivery_Date'])
+weather['Date'] = pd.to_datetime(weather['Date'])
+
+print("Data loaded successfully!")
+print(f"\nShipments shape: {shipments.shape}")
+print(f"Carriers shape: {carriers.shape}")
+print(f"Routes shape: {routes.shape}")
+print(f"Weather events shape: {weather.shape}")
+```
+
+## 1. Exploratory Data Analysis (EDA)
+
+### 1.1 Overview Statistics
+
+```python
+# Display first few rows
+print("=== SHIPMENTS DATA SAMPLE ===")
+print(shipments.head())
+
+print("\n=== CARRIERS DATA ===")
+print(carriers)
+
+print("\n=== BASIC STATISTICS ===")
+print(shipments.describe())
+```
+
+### 1.2 Data Quality Check
+
+```python
+# Check for missing values
+print("=== MISSING VALUES ===")
+print(shipments.isnull().sum())
+
+# Check data types
+print("\n=== DATA TYPES ===")
+print(shipments.dtypes)
+
+# Check for duplicates
+print(f"\nDuplicate shipments: {shipments.duplicated().sum()}")
+```
+
+### 1.3 Calculate Key Metrics
+
+```python
+# Calculate delivery delay in days
+shipments['Delay_Days'] = (shipments['Delivery_Date'] - 
+                           shipments['Scheduled_Delivery_Date']).dt.days
+
+# Calculate actual transit time
+shipments['Actual_Transit_Days'] = (shipments['Delivery_Date'] - 
+                                    shipments['Order_Date']).dt.days
+
+# Extract time features
+shipments['Order_Month'] = shipments['Order_Date'].dt.month
+shipments['Order_Quarter'] = shipments['Order_Date'].dt.quarter
+shipments['Order_DayOfWeek'] = shipments['Order_Date'].dt.dayofweek
+
+print("=== KEY METRICS CALCULATED ===")
+print(shipments[['Shipment_ID', 'Delay_Days', 'Actual_Transit_Days', 
+                 'Delivery_Status']].head(10))
+```
+
+## 2. Delivery Performance Analysis
+
+### 2.1 Overall Performance Metrics
+
+```python
+# Calculate On-Time Delivery Rate
+total_shipments = len(shipments)
+on_time = (shipments['Delivery_Status'] == 'On-Time').sum()
+delayed = (shipments['Delivery_Status'] == 'Delayed').sum()
+early = (shipments['Delivery_Status'] == 'Early').sum()
+
+otd_rate = (on_time / total_shipments) * 100
+delay_rate = (delayed / total_shipments) * 100
+
+print("=== OVERALL DELIVERY PERFORMANCE ===")
+print(f"Total Shipments: {total_shipments:,}")
+print(f"On-Time Deliveries: {on_time:,} ({otd_rate:.2f}%)")
+print(f"Delayed Deliveries: {delayed:,} ({delay_rate:.2f}%)")
+print(f"Early Deliveries: {early:,} ({(early/total_shipments)*100:.2f}%)")
+print(f"\nAverage Delay (for delayed shipments): {shipments[shipments['Delay_Days'] > 0]['Delay_Days'].mean():.2f} days")
+```
+
+### 2.2 Delivery Status Distribution
+
+```python
+plt.figure(figsize=(10, 6))
+status_counts = shipments['Delivery_Status'].value_counts()
+colors = ['#2ecc71', '#e74c3c', '#3498db']
+plt.bar(status_counts.index, status_counts.values, color=colors, alpha=0.8)
+plt.title('Delivery Status Distribution', fontsize=16, fontweight='bold')
+plt.xlabel('Status', fontsize=12)
+plt.ylabel('Number of Shipments', fontsize=12)
+plt.grid(axis='y', alpha=0.3)
+
+# Add value labels on bars
+for i, v in enumerate(status_counts.values):
+    plt.text(i, v + 50, str(v), ha='center', fontsize=12, fontweight='bold')
+
+plt.tight_layout()
+plt.savefig('delivery_status_distribution.png', dpi=300, bbox_inches='tight')
+plt.show()
+```
+
+### 2.3 Performance Over Time
+
+```python
+# Monthly trend
+monthly_performance = shipments.groupby([shipments['Order_Date'].dt.to_period('M'), 
+                                         'Delivery_Status']).size().unstack(fill_value=0)
+monthly_performance['OTD_Rate'] = (monthly_performance['On-Time'] / 
+                                   monthly_performance.sum(axis=1) * 100)
+
+plt.figure(figsize=(14, 6))
+plt.plot(monthly_performance.index.astype(str), monthly_performance['OTD_Rate'], 
+         marker='o', linewidth=2, markersize=6, color='#2ecc71')
+plt.axhline(y=70.84, color='r', linestyle='--', label='Overall Average')
+plt.title('On-Time Delivery Rate Trend (Monthly)', fontsize=16, fontweight='bold')
+plt.xlabel('Month', fontsize=12)
+plt.ylabel('OTD Rate (%)', fontsize=12)
+plt.xticks(rotation=45)
+plt.legend()
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.savefig('otd_trend_monthly.png', dpi=300, bbox_inches='tight')
+plt.show()
+```
+
+## 3. Carrier Performance Analysis
+
+### 3.1 Carrier Comparison
+
+```python
+# Merge shipments with carrier data
+shipments_with_carrier = shipments.merge(carriers, on='Carrier_ID')
+
+# Calculate metrics by carrier
+carrier_performance = shipments_with_carrier.groupby('Carrier_Name').agg({
+    'Shipment_ID': 'count',
+    'Freight_Cost': 'mean',
+    'Delay_Days': 'mean',
+    'Delivery_Status': lambda x: (x == 'On-Time').sum() / len(x) * 100
+}).round(2)
+
+carrier_performance.columns = ['Total_Shipments', 'Avg_Freight_Cost', 
+                               'Avg_Delay_Days', 'OTD_Rate']
+carrier_performance = carrier_performance.sort_values('OTD_Rate', ascending=False)
+
+print("=== CARRIER PERFORMANCE COMPARISON ===")
+print(carrier_performance)
+```
+
+### 3.2 Carrier Performance Visualization
+
+```python
+fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+
+# 1. OTD Rate by Carrier
+axes[0, 0].barh(carrier_performance.index, carrier_performance['OTD_Rate'], 
+                color='#3498db', alpha=0.8)
+axes[0, 0].axvline(x=70.84, color='r', linestyle='--', label='Overall Average')
+axes[0, 0].set_xlabel('OTD Rate (%)', fontsize=11)
+axes[0, 0].set_title('On-Time Delivery Rate by Carrier', fontsize=13, fontweight='bold')
+axes[0, 0].legend()
+axes[0, 0].grid(axis='x', alpha=0.3)
+
+# 2. Average Cost by Carrier
+axes[0, 1].barh(carrier_performance.index, carrier_performance['Avg_Freight_Cost'], 
+                color='#2ecc71', alpha=0.8)
+axes[0, 1].set_xlabel('Average Freight Cost ($)', fontsize=11)
+axes[0, 1].set_title('Average Freight Cost by Carrier', fontsize=13, fontweight='bold')
+axes[0, 1].grid(axis='x', alpha=0.3)
+
+# 3. Total Shipments by Carrier
+axes[1, 0].barh(carrier_performance.index, carrier_performance['Total_Shipments'], 
+                color='#9b59b6', alpha=0.8)
+axes[1, 0].set_xlabel('Number of Shipments', fontsize=11)
+axes[1, 0].set_title('Total Shipments by Carrier', fontsize=13, fontweight='bold')
+axes[1, 0].grid(axis='x', alpha=0.3)
+
+# 4. Average Delay by Carrier
+axes[1, 1].barh(carrier_performance.index, carrier_performance['Avg_Delay_Days'], 
+                color='#e74c3c', alpha=0.8)
+axes[1, 1].set_xlabel('Average Delay (Days)', fontsize=11)
+axes[1, 1].set_title('Average Delay Days by Carrier', fontsize=13, fontweight='bold')
+axes[1, 1].grid(axis='x', alpha=0.3)
+
+plt.tight_layout()
+plt.savefig('carrier_performance_comparison.png', dpi=300, bbox_inches='tight')
+plt.show()
+```
+
+## 4. Cost Analysis
+
+### 4.1 Cost Distribution
+
+```python
+print("=== COST STATISTICS ===")
+print(f"Total Freight Cost: ${shipments['Freight_Cost'].sum():,.2f}")
+print(f"Average Freight Cost: ${shipments['Freight_Cost'].mean():.2f}")
+print(f"Median Freight Cost: ${shipments['Freight_Cost'].median():.2f}")
+print(f"Cost Std Dev: ${shipments['Freight_Cost'].std():.2f}")
+
+# Cost by priority
+cost_by_priority = shipments.groupby('Priority_Level')['Freight_Cost'].agg(['mean', 'sum', 'count'])
+print("\n=== COST BY PRIORITY LEVEL ===")
+print(cost_by_priority)
+```
+
+### 4.2 Cost Analysis Visualizations
+
+```python
+fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+
+# 1. Cost Distribution
+axes[0].hist(shipments['Freight_Cost'], bins=50, color='#3498db', alpha=0.7, edgecolor='black')
+axes[0].axvline(shipments['Freight_Cost'].mean(), color='r', linestyle='--', 
+                linewidth=2, label=f"Mean: ${shipments['Freight_Cost'].mean():.2f}")
+axes[0].set_xlabel('Freight Cost ($)', fontsize=12)
+axes[0].set_ylabel('Frequency', fontsize=12)
+axes[0].set_title('Freight Cost Distribution', fontsize=14, fontweight='bold')
+axes[0].legend()
+axes[0].grid(alpha=0.3)
+
+# 2. Cost by Priority Level
+priority_costs = shipments.groupby('Priority_Level')['Freight_Cost'].mean().sort_values()
+axes[1].barh(priority_costs.index, priority_costs.values, color='#2ecc71', alpha=0.8)
+axes[1].set_xlabel('Average Freight Cost ($)', fontsize=12)
+axes[1].set_title('Average Cost by Priority Level', fontsize=14, fontweight='bold')
+axes[1].grid(axis='x', alpha=0.3)
+
+plt.tight_layout()
+plt.savefig('cost_analysis.png', dpi=300, bbox_inches='tight')
+plt.show()
+```
+
+### 4.3 Cost per Kilometer Analysis
+
+```python
+shipments['Cost_Per_KM'] = shipments['Freight_Cost'] / shipments['Distance_KM']
+
+print("=== COST PER KILOMETER ===")
+print(f"Average Cost per KM: ${shipments['Cost_Per_KM'].mean():.2f}")
+print(f"Median Cost per KM: ${shipments['Cost_Per_KM'].median():.2f}")
+
+# Cost per KM by carrier
+cost_per_km_carrier = shipments_with_carrier.groupby('Carrier_Name')['Cost_Per_KM'].mean().sort_values()
+
+plt.figure(figsize=(10, 6))
+plt.barh(cost_per_km_carrier.index, cost_per_km_carrier.values, color='#e67e22', alpha=0.8)
+plt.xlabel('Cost per KM ($)', fontsize=12)
+plt.title('Average Cost per KM by Carrier', fontsize=14, fontweight='bold')
+plt.grid(axis='x', alpha=0.3)
+plt.tight_layout()
+plt.savefig('cost_per_km_by_carrier.png', dpi=300, bbox_inches='tight')
+plt.show()
+```
+
+## 5. Route Analysis
+
+### 5.1 Top Routes by Volume
+
+```python
+# Create route identifier
+shipments['Route'] = shipments['Origin_City'] + ' → ' + shipments['Destination_City']
+
+# Top 10 routes by volume
+top_routes = shipments['Route'].value_counts().head(10)
+
+plt.figure(figsize=(12, 6))
+plt.barh(range(len(top_routes)), top_routes.values, color='#9b59b6', alpha=0.8)
+plt.yticks(range(len(top_routes)), top_routes.index)
+plt.xlabel('Number of Shipments', fontsize=12)
+plt.title('Top 10 Routes by Shipment Volume', fontsize=14, fontweight='bold')
+plt.grid(axis='x', alpha=0.3)
+plt.tight_layout()
+plt.savefig('top_routes_by_volume.png', dpi=300, bbox_inches='tight')
+plt.show()
+```
+
+### 5.2 Route Performance Analysis
+
+```python
+# Performance by route (top 15 routes)
+route_performance = shipments.groupby('Route').agg({
+    'Shipment_ID': 'count',
+    'Delay_Days': 'mean',
+    'Delivery_Status': lambda x: (x == 'On-Time').sum() / len(x) * 100,
+    'Freight_Cost': 'mean'
+}).round(2)
+
+route_performance.columns = ['Total_Shipments', 'Avg_Delay', 'OTD_Rate', 'Avg_Cost']
+route_performance = route_performance.sort_values('Total_Shipments', ascending=False).head(15)
+
+print("=== TOP 15 ROUTES PERFORMANCE ===")
+print(route_performance)
+
+# Routes with highest delay rates
+worst_routes = shipments[shipments.groupby('Route')['Shipment_ID'].transform('count') >= 10]
+worst_routes_perf = worst_routes.groupby('Route').agg({
+    'Delivery_Status': lambda x: (x == 'Delayed').sum() / len(x) * 100
+}).sort_values('Delivery_Status', ascending=False).head(10)
+
+print("\n=== TOP 10 ROUTES WITH HIGHEST DELAY RATES ===")
+print(worst_routes_perf)
+```
+
+## 6. Priority Level Analysis
+
+### 6.1 Performance by Priority
+
+```python
+priority_performance = shipments.groupby('Priority_Level').agg({
+    'Shipment_ID': 'count',
+    'Delay_Days': 'mean',
+    'Delivery_Status': lambda x: (x == 'On-Time').sum() / len(x) * 100,
+    'Freight_Cost': 'mean'
+}).round(2)
+
+priority_performance.columns = ['Total_Shipments', 'Avg_Delay', 'OTD_Rate', 'Avg_Cost']
+
+print("=== PERFORMANCE BY PRIORITY LEVEL ===")
+print(priority_performance)
+
+# Visualization
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+# OTD Rate by Priority
+axes[0].bar(priority_performance.index, priority_performance['OTD_Rate'], 
+            color=['#3498db', '#e67e22', '#e74c3c'], alpha=0.8)
+axes[0].set_ylabel('OTD Rate (%)', fontsize=12)
+axes[0].set_title('On-Time Delivery Rate by Priority', fontsize=13, fontweight='bold')
+axes[0].grid(axis='y', alpha=0.3)
+
+# Average Delay by Priority
+axes[1].bar(priority_performance.index, priority_performance['Avg_Delay'], 
+            color=['#3498db', '#e67e22', '#e74c3c'], alpha=0.8)
+axes[1].set_ylabel('Average Delay (Days)', fontsize=12)
+axes[1].set_title('Average Delay by Priority', fontsize=13, fontweight='bold')
+axes[1].grid(axis='y', alpha=0.3)
+
+plt.tight_layout()
+plt.savefig('priority_performance.png', dpi=300, bbox_inches='tight')
+plt.show()
+```
+
+## 7. Weather Impact Analysis
+
+### 7.1 Delay Analysis with Weather Events
+
+```python
+# Merge weather data with shipments
+shipments_weather = shipments.merge(
+    weather,
+    left_on='Order_Date',
+    right_on='Date',
+    how='left'
+)
+
+# Check if weather events correlate with delays
+weather_impact = shipments_weather.groupby('Weather_Condition').agg({
+    'Shipment_ID': 'count',
+    'Delay_Days': 'mean',
+    'Delivery_Status': lambda x: (x == 'Delayed').sum() / len(x) * 100
+}).round(2)
+
+weather_impact.columns = ['Shipments_Affected', 'Avg_Delay', 'Delay_Rate']
+weather_impact = weather_impact.sort_values('Delay_Rate', ascending=False)
+
+print("=== WEATHER IMPACT ON DELIVERIES ===")
+print(weather_impact)
+```
+
+## 8. Correlation Analysis
+
+```python
+# Select numerical columns for correlation
+numerical_cols = ['Distance_KM', 'Shipment_Weight_KG', 'Freight_Cost', 
+                  'Delay_Days', 'Actual_Transit_Days']
+
+correlation_matrix = shipments[numerical_cols].corr()
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlation_matrix, annot=True, fmt='.2f', cmap='coolwarm', 
+            center=0, square=True, linewidths=1)
+plt.title('Correlation Matrix of Key Variables', fontsize=14, fontweight='bold')
+plt.tight_layout()
+plt.savefig('correlation_matrix.png', dpi=300, bbox_inches='tight')
+plt.show()
+```
+
+## 9. Key Insights Summary
+
+```python
+print("="*70)
+print("KEY INSIGHTS FROM ANALYSIS")
+print("="*70)
+
+print(f"\n1. OVERALL PERFORMANCE:")
+print(f"   - On-Time Delivery Rate: {otd_rate:.2f}%")
+print(f"   - Average delay for late shipments: {shipments[shipments['Delay_Days'] > 0]['Delay_Days'].mean():.2f} days")
+
+print(f"\n2. BEST PERFORMING CARRIER:")
+best_carrier = carrier_performance.iloc[0]
+print(f"   - {carrier_performance.index[0]}")
+print(f"   - OTD Rate: {best_carrier['OTD_Rate']:.2f}%")
+print(f"   - Avg Cost: ${best_carrier['Avg_Freight_Cost']:.2f}")
+
+print(f"\n3. COST ANALYSIS:")
+print(f"   - Total freight spend: ${shipments['Freight_Cost'].sum():,.2f}")
+print(f"   - Average cost per shipment: ${shipments['Freight_Cost'].mean():.2f}")
+print(f"   - Express shipments cost {(priority_performance.loc['Express', 'Avg_Cost'] / priority_performance.loc['Standard', 'Avg_Cost'] - 1) * 100:.1f}% more than standard")
+
+print(f"\n4. PRIORITY LEVEL INSIGHTS:")
+print(f"   - Overnight shipments have {100 - priority_performance.loc['Overnight', 'OTD_Rate']:.1f}% delay rate")
+print(f"   - Standard shipments are most reliable with {priority_performance.loc['Standard', 'OTD_Rate']:.1f}% OTD rate")
+
+print(f"\n5. ROUTE INSIGHTS:")
+print(f"   - Busiest route: {top_routes.index[0]} ({top_routes.values[0]} shipments)")
+print(f"   - Total unique routes: {shipments['Route'].nunique()}")
+
+print("\n" + "="*70)
+```
+
