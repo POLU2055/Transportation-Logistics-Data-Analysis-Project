@@ -1,0 +1,9 @@
+Carrier_ID,Carrier_Name,Service_Type,Average_Rating,Base_Rate_Per_KM
+CAR-001,Swift Logistics,Ground,4.5,0.75
+CAR-002,FastTrack Freight,Ground,4.2,0.65
+CAR-003,Prime Transport,Air & Ground,4.7,0.95
+CAR-004,Express Carriers,Ground,3.8,0.6
+CAR-005,Reliable Shipping,Air & Ground,4.6,0.9
+CAR-006,Metro Logistics,Ground,4.0,0.7
+CAR-007,Global Freight Co,Air & Ground,4.4,0.85
+CAR-008,Speedy Delivery,Express,4.8,1.2
