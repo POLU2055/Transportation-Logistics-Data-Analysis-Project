@@ -1,0 +1,278 @@
+"""
+Transportation & Logistics Sample Data Generator
+Generates realistic data for logistics analysis project
+"""
+
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+import random
+
+# Set random seed for reproducibility
+np.random.seed(42)
+random.seed(42)
+
+# Configuration
+NUM_SHIPMENTS = 5000
+NUM_CARRIERS = 8
+START_DATE = datetime(2023, 1, 1)
+END_DATE = datetime(2024, 12, 31)
+
+# Define cities and regions
+CITIES = {
+    'North': ['Chicago', 'Detroit', 'Minneapolis', 'Milwaukee', 'Cleveland'],
+    'South': ['Houston', 'Dallas', 'Atlanta', 'Miami', 'Nashville'],
+    'East': ['New York', 'Boston', 'Philadelphia', 'Baltimore', 'Washington DC'],
+    'West': ['Los Angeles', 'San Francisco', 'Seattle', 'Phoenix', 'Denver']
+}
+
+ALL_CITIES = [city for cities in CITIES.values() for city in cities]
+
+# Generate Carriers Table
+def generate_carriers():
+    carriers = {
+        'Carrier_ID': [f'CAR-{i:03d}' for i in range(1, NUM_CARRIERS + 1)],
+        'Carrier_Name': ['Swift Logistics', 'FastTrack Freight', 'Prime Transport', 
+                        'Express Carriers', 'Reliable Shipping', 'Metro Logistics',
+                        'Global Freight Co', 'Speedy Delivery'],
+        'Service_Type': ['Ground', 'Ground', 'Air & Ground', 'Ground', 'Air & Ground', 
+                        'Ground', 'Air & Ground', 'Express'],
+        'Average_Rating': [4.5, 4.2, 4.7, 3.8, 4.6, 4.0, 4.4, 4.8],
+        'Base_Rate_Per_KM': [0.75, 0.65, 0.95, 0.60, 0.90, 0.70, 0.85, 1.20]
+    }
+    return pd.DataFrame(carriers)
+
+# Generate Routes Table
+def generate_routes():
+    routes = []
+    route_id = 1
+    
+    for origin in ALL_CITIES:
+        for destination in ALL_CITIES:
+            if origin != destination:
+                # Calculate approximate distance (simplified)
+                distance = np.random.randint(200, 2500)
+                transit_days = max(1, distance // 500)
+                
+                # Determine traffic density based on cities
+                major_cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'San Francisco']
+                if origin in major_cities or destination in major_cities:
+                    traffic_density = random.choices(['Medium', 'High'], weights=[0.3, 0.7])[0]
+                else:
+                    traffic_density = random.choices(['Low', 'Medium', 'High'], weights=[0.5, 0.4, 0.1])[0]
+                
+                routes.append({
+                    'Route_ID': f'RT-{route_id:04d}',
+                    'Origin_City': origin,
+                    'Destination_City': destination,
+                    'Distance_KM': distance,
+                    'Typical_Transit_Days': transit_days,
+                    'Traffic_Density': traffic_density
+                })
+                route_id += 1
+    
+    return pd.DataFrame(routes)
+
+# Generate Weather Events Table
+def generate_weather_events():
+    weather_events = []
+    current_date = START_DATE
+    
+    while current_date <= END_DATE:
+        # Randomly generate weather events (not every day has an event)
+        if random.random() < 0.15:  # 15% chance of weather event per day
+            for region in CITIES.keys():
+                if random.random() < 0.3:  # 30% chance per region
+                    weather_condition = random.choices(
+                        ['Rain', 'Snow', 'Storm', 'Fog'],
+                        weights=[0.5, 0.2, 0.2, 0.1]
+                    )[0]
+                    severity = random.choices(
+                        ['Low', 'Medium', 'High'],
+                        weights=[0.6, 0.3, 0.1]
+                    )[0]
+                    
+                    weather_events.append({
+                        'Date': current_date,
+                        'Region': region,
+                        'Weather_Condition': weather_condition,
+                        'Severity': severity
+                    })
+        
+        current_date += timedelta(days=1)
+    
+    return pd.DataFrame(weather_events)
+
+# Generate Shipments Table
+def generate_shipments(routes_df, carriers_df, weather_df):
+    shipments = []
+    
+    for i in range(NUM_SHIPMENTS):
+        # Random order date
+        order_date = START_DATE + timedelta(days=random.randint(0, (END_DATE - START_DATE).days))
+        
+        # Select random route
+        route = routes_df.sample(1).iloc[0]
+        origin = route['Origin_City']
+        destination = route['Destination_City']
+        distance = route['Distance_KM']
+        typical_transit = route['Typical_Transit_Days']
+        traffic_density = route['Traffic_Density']
+        
+        # Select random carrier
+        carrier = carriers_df.sample(1).iloc[0]
+        carrier_id = carrier['Carrier_ID']
+        base_rate = carrier['Base_Rate_Per_KM']
+        carrier_rating = carrier['Average_Rating']
+        
+        # Shipment characteristics
+        priority = random.choices(
+            ['Standard', 'Express', 'Overnight'],
+            weights=[0.6, 0.3, 0.1]
+        )[0]
+        
+        vehicle_type = random.choices(
+            ['Van', 'Truck', 'Semi-Truck', 'Cargo Plane'],
+            weights=[0.3, 0.4, 0.25, 0.05]
+        )[0]
+        
+        weight = np.random.gamma(shape=2, scale=200)  # Skewed distribution
+        volume = weight * np.random.uniform(0.001, 0.003)  # Volume roughly proportional to weight
+        
+        # Calculate scheduled delivery
+        if priority == 'Overnight':
+            scheduled_days = 1
+        elif priority == 'Express':
+            scheduled_days = max(1, typical_transit - 1)
+        else:
+            scheduled_days = typical_transit
+        
+        scheduled_delivery = order_date + timedelta(days=int(scheduled_days))
+        
+        # Calculate actual delivery with various delay factors
+        actual_transit_days = scheduled_days
+        
+        # Factor 1: Carrier quality (better carriers have fewer delays)
+        if carrier_rating < 4.0:
+            if random.random() < 0.3:
+                actual_transit_days += random.randint(1, 3)
+        elif carrier_rating < 4.5:
+            if random.random() < 0.15:
+                actual_transit_days += random.randint(1, 2)
+        
+        # Factor 2: Traffic density
+        traffic_delay_prob = {'Low': 0.05, 'Medium': 0.15, 'High': 0.25}
+        if random.random() < traffic_delay_prob[traffic_density]:
+            actual_transit_days += random.randint(1, 2)
+        
+        # Factor 3: Weather impact
+        delivery_date_range = pd.date_range(order_date, order_date + timedelta(days=int(actual_transit_days)))
+        region = [k for k, v in CITIES.items() if origin in v or destination in v]
+        
+        weather_impact = weather_df[
+            (weather_df['Date'].isin(delivery_date_range)) &
+            (weather_df['Region'].isin(region))
+        ]
+        
+        if not weather_impact.empty:
+            severity_delay = {'Low': 0, 'Medium': 1, 'High': 2}
+            max_severity = weather_impact['Severity'].value_counts().index[0] if len(weather_impact) > 0 else 'Low'
+            actual_transit_days += severity_delay.get(max_severity, 0)
+        
+        # Factor 4: Priority shipments sometimes arrive early
+        if priority == 'Overnight' and random.random() < 0.1:
+            actual_transit_days = max(0, actual_transit_days - 1)
+        
+        # Calculate actual delivery date
+        delivery_date = order_date + timedelta(days=int(actual_transit_days))
+        
+        # Determine delivery status
+        if delivery_date < scheduled_delivery:
+            status = 'Early'
+        elif delivery_date == scheduled_delivery:
+            status = 'On-Time'
+        else:
+            status = 'Delayed'
+        
+        # Calculate freight cost
+        base_cost = distance * base_rate
+        
+        # Cost adjustments
+        priority_multiplier = {'Standard': 1.0, 'Express': 1.4, 'Overnight': 2.0}
+        weight_factor = 1 + (weight / 1000)  # Heavier shipments cost more
+        
+        freight_cost = base_cost * priority_multiplier[priority] * weight_factor
+        
+        # Add some random variation
+        freight_cost *= np.random.uniform(0.9, 1.1)
+        
+        shipments.append({
+            'Shipment_ID': f'SHP-{i+1:05d}',
+            'Order_Date': order_date,
+            'Delivery_Date': delivery_date,
+            'Scheduled_Delivery_Date': scheduled_delivery,
+            'Origin_City': origin,
+            'Destination_City': destination,
+            'Distance_KM': distance,
+            'Carrier_ID': carrier_id,
+            'Vehicle_Type': vehicle_type,
+            'Shipment_Weight_KG': round(weight, 2),
+            'Shipment_Volume_M3': round(volume, 3),
+            'Priority_Level': priority,
+            'Customer_ID': f'CUST-{random.randint(1000, 9999)}',
+            'Freight_Cost': round(freight_cost, 2),
+            'Delivery_Status': status
+        })
+    
+    return pd.DataFrame(shipments)
+
+# Generate all datasets
+print("Generating carriers data...")
+carriers_df = generate_carriers()
+
+print("Generating routes data...")
+routes_df = generate_routes()
+
+print("Generating weather events data...")
+weather_df = generate_weather_events()
+
+print("Generating shipments data...")
+shipments_df = generate_shipments(routes_df, carriers_df, weather_df)
+
+# Save to CSV files
+print("\nSaving datasets to CSV files...")
+carriers_df.to_csv('/home/claude/carriers.csv', index=False)
+routes_df.to_csv('/home/claude/routes.csv', index=False)
+weather_df.to_csv('/home/claude/weather_events.csv', index=False)
+shipments_df.to_csv('/home/claude/shipments.csv', index=False)
+
+# Display summary statistics
+print("\n" + "="*60)
+print("DATA GENERATION COMPLETE")
+print("="*60)
+
+print(f"\n📊 Dataset Summary:")
+print(f"  - Carriers: {len(carriers_df)} records")
+print(f"  - Routes: {len(routes_df)} records")
+print(f"  - Weather Events: {len(weather_df)} records")
+print(f"  - Shipments: {len(shipments_df)} records")
+
+print(f"\n📦 Shipment Status Distribution:")
+print(shipments_df['Delivery_Status'].value_counts())
+
+print(f"\n⏱️ Delivery Performance:")
+on_time_rate = (shipments_df['Delivery_Status'] == 'On-Time').sum() / len(shipments_df) * 100
+print(f"  On-Time Delivery Rate: {on_time_rate:.2f}%")
+
+print(f"\n💰 Cost Statistics:")
+print(f"  Average Freight Cost: ${shipments_df['Freight_Cost'].mean():.2f}")
+print(f"  Total Freight Cost: ${shipments_df['Freight_Cost'].sum():.2f}")
+
+print(f"\n🚚 Priority Distribution:")
+print(shipments_df['Priority_Level'].value_counts())
+
+print(f"\n✅ Files saved successfully!")
+print("  - carriers.csv")
+print("  - routes.csv")
+print("  - weather_events.csv")
+print("  - shipments.csv")
