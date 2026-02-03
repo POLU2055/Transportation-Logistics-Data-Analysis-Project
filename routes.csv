@@ -1,0 +1,381 @@
+Route_ID,Origin_City,Destination_City,Distance_KM,Typical_Transit_Days,Traffic_Density
+RT-0001,Chicago,Detroit,1060,2,High
+RT-0002,Chicago,Minneapolis,1494,2,Medium
+RT-0003,Chicago,Milwaukee,1330,2,Medium
+RT-0004,Chicago,Cleveland,1295,2,Medium
+RT-0005,Chicago,Houston,1838,3,High
+RT-0006,Chicago,Dallas,2369,4,High
+RT-0007,Chicago,Atlanta,666,1,High
+RT-0008,Chicago,Miami,1438,2,Medium
+RT-0009,Chicago,Nashville,530,1,High
+RT-0010,Chicago,New York,1682,3,Medium
+RT-0011,Chicago,Boston,2335,4,Medium
+RT-0012,Chicago,Philadelphia,330,1,High
+RT-0013,Chicago,Baltimore,1885,3,Medium
+RT-0014,Chicago,Washington DC,969,1,Medium
+RT-0015,Chicago,Los Angeles,1715,3,High
+RT-0016,Chicago,San Francisco,1415,2,High
+RT-0017,Chicago,Seattle,1155,2,Medium
+RT-0018,Chicago,Phoenix,1384,2,High
+RT-0019,Chicago,Denver,659,1,High
+RT-0020,Detroit,Chicago,221,1,Medium
+RT-0021,Detroit,Minneapolis,947,1,Medium
+RT-0022,Detroit,Milwaukee,674,1,Medium
+RT-0023,Detroit,Cleveland,1282,2,Low
+RT-0024,Detroit,Houston,2247,4,Medium
+RT-0025,Detroit,Dallas,1175,2,High
+RT-0026,Detroit,Atlanta,2006,4,Low
+RT-0027,Detroit,Miami,389,1,Low
+RT-0028,Detroit,Nashville,762,1,Low
+RT-0029,Detroit,New York,2099,4,High
+RT-0030,Detroit,Boston,1467,2,Medium
+RT-0031,Detroit,Philadelphia,1728,3,Medium
+RT-0032,Detroit,Baltimore,846,1,Medium
+RT-0033,Detroit,Washington DC,2268,4,Medium
+RT-0034,Detroit,Los Angeles,2414,4,High
+RT-0035,Detroit,San Francisco,1497,2,High
+RT-0036,Detroit,Seattle,800,1,Medium
+RT-0037,Detroit,Phoenix,2261,4,Medium
+RT-0038,Detroit,Denver,441,1,Medium
+RT-0039,Minneapolis,Chicago,2241,4,High
+RT-0040,Minneapolis,Detroit,1563,3,Medium
+RT-0041,Minneapolis,Milwaukee,2339,4,Medium
+RT-0042,Minneapolis,Cleveland,1590,3,Low
+RT-0043,Minneapolis,Houston,1678,3,Medium
+RT-0044,Minneapolis,Dallas,975,1,Low
+RT-0045,Minneapolis,Atlanta,234,1,Low
+RT-0046,Minneapolis,Miami,2453,4,Low
+RT-0047,Minneapolis,Nashville,2155,4,Low
+RT-0048,Minneapolis,New York,1785,3,Medium
+RT-0049,Minneapolis,Boston,1221,2,Medium
+RT-0050,Minneapolis,Philadelphia,1329,2,Low
+RT-0051,Minneapolis,Baltimore,1700,3,Low
+RT-0052,Minneapolis,Washington DC,902,1,Low
+RT-0053,Minneapolis,Los Angeles,1779,3,Medium
+RT-0054,Minneapolis,San Francisco,361,1,High
+RT-0055,Minneapolis,Seattle,401,1,Medium
+RT-0056,Minneapolis,Phoenix,2181,4,Medium
+RT-0057,Minneapolis,Denver,1195,2,Low
+RT-0058,Milwaukee,Chicago,1015,2,High
+RT-0059,Milwaukee,Detroit,655,1,Low
+RT-0060,Milwaukee,Minneapolis,1475,2,Low
+RT-0061,Milwaukee,Cleveland,1216,2,High
+RT-0062,Milwaukee,Houston,537,1,High
+RT-0063,Milwaukee,Dallas,1078,2,Medium
+RT-0064,Milwaukee,Atlanta,1276,2,Medium
+RT-0065,Milwaukee,Miami,991,1,Medium
+RT-0066,Milwaukee,Nashville,2464,4,Medium
+RT-0067,Milwaukee,New York,963,1,Medium
+RT-0068,Milwaukee,Boston,2435,4,Low
+RT-0069,Milwaukee,Philadelphia,579,1,Low
+RT-0070,Milwaukee,Baltimore,692,1,Low
+RT-0071,Milwaukee,Washington DC,1380,2,Low
+RT-0072,Milwaukee,Los Angeles,2262,4,High
+RT-0073,Milwaukee,San Francisco,264,1,High
+RT-0074,Milwaukee,Seattle,1567,3,Low
+RT-0075,Milwaukee,Phoenix,1352,2,Medium
+RT-0076,Milwaukee,Denver,2227,4,Low
+RT-0077,Cleveland,Chicago,1695,3,High
+RT-0078,Cleveland,Detroit,1362,2,Low
+RT-0079,Cleveland,Minneapolis,1722,3,Low
+RT-0080,Cleveland,Milwaukee,591,1,Low
+RT-0081,Cleveland,Houston,1898,3,High
+RT-0082,Cleveland,Dallas,618,1,Low
+RT-0083,Cleveland,Atlanta,578,1,Medium
+RT-0084,Cleveland,Miami,1996,3,Medium
+RT-0085,Cleveland,Nashville,2478,4,Low
+RT-0086,Cleveland,New York,2288,4,Medium
+RT-0087,Cleveland,Boston,2382,4,High
+RT-0088,Cleveland,Philadelphia,400,1,Medium
+RT-0089,Cleveland,Baltimore,2063,4,Low
+RT-0090,Cleveland,Washington DC,979,1,Low
+RT-0091,Cleveland,Los Angeles,702,1,Medium
+RT-0092,Cleveland,San Francisco,1951,3,High
+RT-0093,Cleveland,Seattle,1004,2,Medium
+RT-0094,Cleveland,Phoenix,2346,4,Low
+RT-0095,Cleveland,Denver,2095,4,Low
+RT-0096,Houston,Chicago,1770,3,High
+RT-0097,Houston,Detroit,1160,2,High
+RT-0098,Houston,Minneapolis,1685,3,High
+RT-0099,Houston,Milwaukee,1228,2,High
+RT-0100,Houston,Cleveland,702,1,High
+RT-0101,Houston,Dallas,597,1,Medium
+RT-0102,Houston,Atlanta,1070,2,High
+RT-0103,Houston,Miami,592,1,High
+RT-0104,Houston,Nashville,406,1,High
+RT-0105,Houston,New York,1238,2,Medium
+RT-0106,Houston,Boston,2081,4,High
+RT-0107,Houston,Philadelphia,1684,3,Medium
+RT-0108,Houston,Baltimore,1063,2,High
+RT-0109,Houston,Washington DC,763,1,High
+RT-0110,Houston,Los Angeles,1220,2,High
+RT-0111,Houston,San Francisco,295,1,High
+RT-0112,Houston,Seattle,2123,4,Medium
+RT-0113,Houston,Phoenix,1957,3,High
+RT-0114,Houston,Denver,2478,4,Medium
+RT-0115,Dallas,Chicago,1878,3,High
+RT-0116,Dallas,Detroit,740,1,Medium
+RT-0117,Dallas,Minneapolis,1259,2,Low
+RT-0118,Dallas,Milwaukee,1383,2,Medium
+RT-0119,Dallas,Cleveland,1922,3,Medium
+RT-0120,Dallas,Houston,2019,4,Medium
+RT-0121,Dallas,Atlanta,1797,3,Medium
+RT-0122,Dallas,Miami,995,1,Medium
+RT-0123,Dallas,Nashville,1251,2,Medium
+RT-0124,Dallas,New York,1843,3,High
+RT-0125,Dallas,Boston,1563,3,Low
+RT-0126,Dallas,Philadelphia,2181,4,Low
+RT-0127,Dallas,Baltimore,1554,3,Low
+RT-0128,Dallas,Washington DC,1863,3,High
+RT-0129,Dallas,Los Angeles,1729,3,High
+RT-0130,Dallas,San Francisco,2238,4,High
+RT-0131,Dallas,Seattle,1696,3,Low
+RT-0132,Dallas,Phoenix,2437,4,Low
+RT-0133,Dallas,Denver,1608,3,Medium
+RT-0134,Atlanta,Chicago,1600,3,High
+RT-0135,Atlanta,Detroit,1506,3,Low
+RT-0136,Atlanta,Minneapolis,1172,2,Low
+RT-0137,Atlanta,Milwaukee,1968,3,Low
+RT-0138,Atlanta,Cleveland,1482,2,Medium
+RT-0139,Atlanta,Houston,909,1,High
+RT-0140,Atlanta,Dallas,1679,3,Low
+RT-0141,Atlanta,Miami,1634,3,Low
+RT-0142,Atlanta,Nashville,848,1,Medium
+RT-0143,Atlanta,New York,517,1,Medium
+RT-0144,Atlanta,Boston,1457,2,Medium
+RT-0145,Atlanta,Philadelphia,883,1,Low
+RT-0146,Atlanta,Baltimore,863,1,Low
+RT-0147,Atlanta,Washington DC,2198,4,Medium
+RT-0148,Atlanta,Los Angeles,1831,3,High
+RT-0149,Atlanta,San Francisco,1695,3,Medium
+RT-0150,Atlanta,Seattle,1336,2,Low
+RT-0151,Atlanta,Phoenix,2053,4,High
+RT-0152,Atlanta,Denver,1720,3,Medium
+RT-0153,Miami,Chicago,763,1,High
+RT-0154,Miami,Detroit,1491,2,Medium
+RT-0155,Miami,Minneapolis,1836,3,Low
+RT-0156,Miami,Milwaukee,898,1,Low
+RT-0157,Miami,Cleveland,2360,4,Low
+RT-0158,Miami,Houston,201,1,High
+RT-0159,Miami,Dallas,841,1,Low
+RT-0160,Miami,Atlanta,2467,4,Low
+RT-0161,Miami,Nashville,1789,3,Low
+RT-0162,Miami,New York,1054,2,High
+RT-0163,Miami,Boston,1959,3,Low
+RT-0164,Miami,Philadelphia,1861,3,High
+RT-0165,Miami,Baltimore,1353,2,Medium
+RT-0166,Miami,Washington DC,1276,2,Low
+RT-0167,Miami,Los Angeles,1907,3,Medium
+RT-0168,Miami,San Francisco,1895,3,High
+RT-0169,Miami,Seattle,1933,3,Low
+RT-0170,Miami,Phoenix,1639,3,Low
+RT-0171,Miami,Denver,2494,4,High
+RT-0172,Nashville,Chicago,1035,2,High
+RT-0173,Nashville,Detroit,402,1,Low
+RT-0174,Nashville,Minneapolis,322,1,Medium
+RT-0175,Nashville,Milwaukee,600,1,Medium
+RT-0176,Nashville,Cleveland,966,1,Low
+RT-0177,Nashville,Houston,493,1,Medium
+RT-0178,Nashville,Dallas,397,1,Low
+RT-0179,Nashville,Atlanta,2130,4,Low
+RT-0180,Nashville,Miami,2391,4,Low
+RT-0181,Nashville,New York,808,1,High
+RT-0182,Nashville,Boston,1347,2,Medium
+RT-0183,Nashville,Philadelphia,386,1,High
+RT-0184,Nashville,Baltimore,1994,3,Low
+RT-0185,Nashville,Washington DC,859,1,Low
+RT-0186,Nashville,Los Angeles,2155,4,High
+RT-0187,Nashville,San Francisco,1569,3,High
+RT-0188,Nashville,Seattle,2186,4,Low
+RT-0189,Nashville,Phoenix,1734,3,Low
+RT-0190,Nashville,Denver,346,1,Low
+RT-0191,New York,Chicago,1934,3,High
+RT-0192,New York,Detroit,2043,4,Medium
+RT-0193,New York,Minneapolis,688,1,Medium
+RT-0194,New York,Milwaukee,2159,4,High
+RT-0195,New York,Cleveland,1863,3,High
+RT-0196,New York,Houston,840,1,High
+RT-0197,New York,Dallas,2002,4,High
+RT-0198,New York,Atlanta,2169,4,Medium
+RT-0199,New York,Miami,2398,4,High
+RT-0200,New York,Nashville,1638,3,High
+RT-0201,New York,Boston,1834,3,High
+RT-0202,New York,Philadelphia,462,1,High
+RT-0203,New York,Baltimore,1987,3,High
+RT-0204,New York,Washington DC,2391,4,Medium
+RT-0205,New York,Los Angeles,823,1,High
+RT-0206,New York,San Francisco,1216,2,Medium
+RT-0207,New York,Seattle,1080,2,High
+RT-0208,New York,Phoenix,2249,4,Medium
+RT-0209,New York,Denver,1527,3,High
+RT-0210,Boston,Chicago,652,1,High
+RT-0211,Boston,Detroit,1383,2,Low
+RT-0212,Boston,Minneapolis,2256,4,Medium
+RT-0213,Boston,Milwaukee,1882,3,Low
+RT-0214,Boston,Cleveland,2455,4,Low
+RT-0215,Boston,Houston,1354,2,High
+RT-0216,Boston,Dallas,603,1,High
+RT-0217,Boston,Atlanta,2399,4,Medium
+RT-0218,Boston,Miami,2301,4,Medium
+RT-0219,Boston,Nashville,1896,3,Low
+RT-0220,Boston,New York,827,1,Medium
+RT-0221,Boston,Philadelphia,786,1,High
+RT-0222,Boston,Baltimore,1848,3,Medium
+RT-0223,Boston,Washington DC,1643,3,Medium
+RT-0224,Boston,Los Angeles,1645,3,High
+RT-0225,Boston,San Francisco,303,1,Medium
+RT-0226,Boston,Seattle,453,1,Medium
+RT-0227,Boston,Phoenix,1696,3,Medium
+RT-0228,Boston,Denver,298,1,Medium
+RT-0229,Philadelphia,Chicago,2400,4,Medium
+RT-0230,Philadelphia,Detroit,2084,4,High
+RT-0231,Philadelphia,Minneapolis,2119,4,Low
+RT-0232,Philadelphia,Milwaukee,1077,2,Low
+RT-0233,Philadelphia,Cleveland,537,1,Medium
+RT-0234,Philadelphia,Houston,1156,2,High
+RT-0235,Philadelphia,Dallas,1904,3,Low
+RT-0236,Philadelphia,Atlanta,360,1,Low
+RT-0237,Philadelphia,Miami,1803,3,Medium
+RT-0238,Philadelphia,Nashville,597,1,Low
+RT-0239,Philadelphia,New York,1500,3,High
+RT-0240,Philadelphia,Boston,1015,2,Medium
+RT-0241,Philadelphia,Baltimore,1727,3,Low
+RT-0242,Philadelphia,Washington DC,2119,4,Medium
+RT-0243,Philadelphia,Los Angeles,1615,3,High
+RT-0244,Philadelphia,San Francisco,1358,2,High
+RT-0245,Philadelphia,Seattle,1418,2,Low
+RT-0246,Philadelphia,Phoenix,600,1,Medium
+RT-0247,Philadelphia,Denver,839,1,Low
+RT-0248,Baltimore,Chicago,659,1,High
+RT-0249,Baltimore,Detroit,1154,2,Medium
+RT-0250,Baltimore,Minneapolis,669,1,Low
+RT-0251,Baltimore,Milwaukee,1245,2,Low
+RT-0252,Baltimore,Cleveland,1893,3,Medium
+RT-0253,Baltimore,Houston,2285,4,Medium
+RT-0254,Baltimore,Dallas,2477,4,Low
+RT-0255,Baltimore,Atlanta,762,1,High
+RT-0256,Baltimore,Miami,1999,3,High
+RT-0257,Baltimore,Nashville,2274,4,Low
+RT-0258,Baltimore,New York,425,1,Medium
+RT-0259,Baltimore,Boston,997,1,Low
+RT-0260,Baltimore,Philadelphia,1159,2,High
+RT-0261,Baltimore,Washington DC,1704,3,Medium
+RT-0262,Baltimore,Los Angeles,652,1,High
+RT-0263,Baltimore,San Francisco,1015,2,High
+RT-0264,Baltimore,Seattle,858,1,Low
+RT-0265,Baltimore,Phoenix,746,1,Medium
+RT-0266,Baltimore,Denver,1415,2,Medium
+RT-0267,Washington DC,Chicago,216,1,High
+RT-0268,Washington DC,Detroit,1443,2,High
+RT-0269,Washington DC,Minneapolis,2405,4,Medium
+RT-0270,Washington DC,Milwaukee,1269,2,Low
+RT-0271,Washington DC,Cleveland,2346,4,Medium
+RT-0272,Washington DC,Houston,1968,3,Medium
+RT-0273,Washington DC,Dallas,1260,2,Medium
+RT-0274,Washington DC,Atlanta,501,1,High
+RT-0275,Washington DC,Miami,380,1,Low
+RT-0276,Washington DC,Nashville,806,1,Low
+RT-0277,Washington DC,New York,899,1,Medium
+RT-0278,Washington DC,Boston,1192,2,Medium
+RT-0279,Washington DC,Philadelphia,1339,2,Low
+RT-0280,Washington DC,Baltimore,390,1,Medium
+RT-0281,Washington DC,Los Angeles,1180,2,High
+RT-0282,Washington DC,San Francisco,2206,4,Medium
+RT-0283,Washington DC,Seattle,1384,2,Medium
+RT-0284,Washington DC,Phoenix,327,1,Low
+RT-0285,Washington DC,Denver,2265,4,Low
+RT-0286,Los Angeles,Chicago,2016,4,High
+RT-0287,Los Angeles,Detroit,1958,3,High
+RT-0288,Los Angeles,Minneapolis,769,1,Medium
+RT-0289,Los Angeles,Milwaukee,1546,3,High
+RT-0290,Los Angeles,Cleveland,2095,4,Medium
+RT-0291,Los Angeles,Houston,825,1,Medium
+RT-0292,Los Angeles,Dallas,1886,3,High
+RT-0293,Los Angeles,Atlanta,354,1,High
+RT-0294,Los Angeles,Miami,1609,3,Medium
+RT-0295,Los Angeles,Nashville,984,1,High
+RT-0296,Los Angeles,New York,445,1,High
+RT-0297,Los Angeles,Boston,1700,3,High
+RT-0298,Los Angeles,Philadelphia,1905,3,Medium
+RT-0299,Los Angeles,Baltimore,737,1,Medium
+RT-0300,Los Angeles,Washington DC,2090,4,High
+RT-0301,Los Angeles,San Francisco,2041,4,High
+RT-0302,Los Angeles,Seattle,1120,2,High
+RT-0303,Los Angeles,Phoenix,724,1,High
+RT-0304,Los Angeles,Denver,1729,3,High
+RT-0305,San Francisco,Chicago,235,1,Medium
+RT-0306,San Francisco,Detroit,884,1,Medium
+RT-0307,San Francisco,Minneapolis,219,1,High
+RT-0308,San Francisco,Milwaukee,599,1,High
+RT-0309,San Francisco,Cleveland,1171,2,High
+RT-0310,San Francisco,Houston,2106,4,High
+RT-0311,San Francisco,Dallas,1366,2,High
+RT-0312,San Francisco,Atlanta,1315,2,Medium
+RT-0313,San Francisco,Miami,1033,2,Medium
+RT-0314,San Francisco,Nashville,2023,4,Medium
+RT-0315,San Francisco,New York,2182,4,High
+RT-0316,San Francisco,Boston,1053,2,High
+RT-0317,San Francisco,Philadelphia,250,1,High
+RT-0318,San Francisco,Baltimore,774,1,High
+RT-0319,San Francisco,Washington DC,1348,2,Medium
+RT-0320,San Francisco,Los Angeles,2397,4,High
+RT-0321,San Francisco,Seattle,1915,3,High
+RT-0322,San Francisco,Phoenix,881,1,High
+RT-0323,San Francisco,Denver,1037,2,High
+RT-0324,Seattle,Chicago,1277,2,High
+RT-0325,Seattle,Detroit,1795,3,Low
+RT-0326,Seattle,Minneapolis,204,1,Medium
+RT-0327,Seattle,Milwaukee,1326,2,Low
+RT-0328,Seattle,Cleveland,1419,2,High
+RT-0329,Seattle,Houston,973,1,High
+RT-0330,Seattle,Dallas,1076,2,Medium
+RT-0331,Seattle,Atlanta,1191,2,Medium
+RT-0332,Seattle,Miami,246,1,Low
+RT-0333,Seattle,Nashville,468,1,Medium
+RT-0334,Seattle,New York,569,1,Medium
+RT-0335,Seattle,Boston,835,1,Medium
+RT-0336,Seattle,Philadelphia,1329,2,Medium
+RT-0337,Seattle,Baltimore,1893,3,Low
+RT-0338,Seattle,Washington DC,1882,3,Medium
+RT-0339,Seattle,Los Angeles,856,1,High
+RT-0340,Seattle,San Francisco,319,1,High
+RT-0341,Seattle,Phoenix,1030,2,Medium
+RT-0342,Seattle,Denver,2010,4,Low
+RT-0343,Phoenix,Chicago,1281,2,Medium
+RT-0344,Phoenix,Detroit,2174,4,Low
+RT-0345,Phoenix,Minneapolis,1569,3,Low
+RT-0346,Phoenix,Milwaukee,940,1,Medium
+RT-0347,Phoenix,Cleveland,316,1,High
+RT-0348,Phoenix,Houston,2053,4,Medium
+RT-0349,Phoenix,Dallas,1350,2,Medium
+RT-0350,Phoenix,Atlanta,2131,4,Low
+RT-0351,Phoenix,Miami,1212,2,High
+RT-0352,Phoenix,Nashville,1864,3,Medium
+RT-0353,Phoenix,New York,1281,2,High
+RT-0354,Phoenix,Boston,833,1,Low
+RT-0355,Phoenix,Philadelphia,712,1,High
+RT-0356,Phoenix,Baltimore,1319,2,Low
+RT-0357,Phoenix,Washington DC,1341,2,High
+RT-0358,Phoenix,Los Angeles,759,1,Medium
+RT-0359,Phoenix,San Francisco,687,1,Medium
+RT-0360,Phoenix,Seattle,1096,2,Low
+RT-0361,Phoenix,Denver,1412,2,Medium
+RT-0362,Denver,Chicago,903,1,High
+RT-0363,Denver,Detroit,1670,3,Medium
+RT-0364,Denver,Minneapolis,780,1,Medium
+RT-0365,Denver,Milwaukee,2494,4,Low
+RT-0366,Denver,Cleveland,353,1,Medium
+RT-0367,Denver,Houston,1879,3,Medium
+RT-0368,Denver,Dallas,1196,2,Medium
+RT-0369,Denver,Atlanta,1443,2,Low
+RT-0370,Denver,Miami,1292,2,High
+RT-0371,Denver,Nashville,1208,2,Medium
+RT-0372,Denver,New York,2341,4,High
+RT-0373,Denver,Boston,1973,3,Medium
+RT-0374,Denver,Philadelphia,1157,2,Medium
+RT-0375,Denver,Baltimore,652,1,Low
+RT-0376,Denver,Washington DC,1427,2,Low
+RT-0377,Denver,Los Angeles,2465,4,High
+RT-0378,Denver,San Francisco,750,1,High
+RT-0379,Denver,Seattle,1835,3,Low
+RT-0380,Denver,Phoenix,1512,3,Medium
